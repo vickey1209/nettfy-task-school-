@@ -26,6 +26,10 @@ app.get("/register", (req, res) =>{
     res.render("register");
 })
 
+app.get("/login", (req, res) =>{
+    res.render("login");
+})
+
 app.post("/register", async(req, res) =>{
     try{
         // console.log(req.body.firstname); 
@@ -52,6 +56,24 @@ app.post("/register", async(req, res) =>{
         }
     }catch(e){
         res.status(400).send(e);
+    }
+})
+
+app.post("/login", async(req, res) =>{
+    try{
+        const email = req.body.email;
+        const password = req.body.password;
+        //console.log(`${email} and password is ${password}`);
+        const useremail = await Register.findOne({email:email});
+        // res.send(useremail.password);
+        // console.log(useremail);
+        if(useremail.password === password){
+            res.status(201).render("index");
+        }else{
+            res.send("invalid login details");
+        }
+    }catch(e){
+        res.status(400).send("invalid login details");
     }
 })
 
