@@ -1,64 +1,69 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <title></title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
- <style type="text/css">
-     table, td, th {  
-     border: 1px solid #ddd;
-     text-align: left;
-   }
-   
-   table {
-     border-collapse: collapse;
-     width: 50%;
-    
-   }
-   .table-data{
-       position: relative;
-     left:50px;
-     top:50px;
-   }
-   th, td {
-     padding: 15px;
-   }
- </style>
-</head>
-<body>
-    <!-- <%= details %> -->
-<!--====form section start====-->
-<hr>
-<% if(details!=null) { %>
-<table>
-<tr>
-    <th>First name</th>
-    <th>Last name </th>
-    <th>Email</th>
-    <th>Gender</th>
-    <th>Phone</th>
-    <th>Age </th>
-    <th>File</th>
-    <th>Password</th>
-    <th>Confirm Password</th>
-</tr>
-<% details.forEach(function(item){ %>
-<tr>
-    <td><%= item.firstname%></td>
-    <td><%= item.lastname%></td>
-    <td><%= item.email%></td>
-    <td><%= item.gender%></td>
-    <td><%= item.phone%></td>
-    <td><%= item.age%></td>
-    <td><%= item.file%></td>
-    <td><%= item.password%></td>
-    <td><%= item.confirmpassword%></td>
-    <td><div style="display: flex;justify-content: center;"><button style="background-color: rgb(56, 137, 230);color: white;">Edit</button><button style="background-color: red;">Delete</button></div></td>
+  <head>
+    <title></title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type="text/css">
+      table,
+      td,
+      th {
+        border: 1px solid #ddd;
+        text-align: left;
+      }
 
-</tr>
-<% }) %>
-</table>
-<% } %>
-</body>
+      table {
+        border-collapse: collapse;
+        width: 50%;
+      }
+      .table-data {
+        position: relative;
+        left: 50px;
+        top: 50px;
+      }
+      th,
+      td {
+        padding: 15px;
+      }
+      a {
+        padding-right: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <%= details %> -->
+    <!--====form section start====-->
+    <hr />
+    <% if(details!=null) { %>
+    <table>
+      <tr>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>Email</th>
+        <th>Gender</th>
+        <th>Phone</th>
+        <th>Age</th>
+        <th>File</th>
+        <th>Password</th>
+        <th>Confirm Password</th>
+      </tr>
+      <% details.forEach(function(item){ %>
+      <tr>
+        <td><%= item.firstname%></td>
+        <td><%= item.lastname%></td>
+        <td><%= item.email%></td>
+        <td><%= item.gender%></td>
+        <td><%= item.phone%></td>
+        <td><%= item.age%></td>
+        <td><%= item.file%></td>
+        <td><%= item.password%></td>
+        <td>
+          <a style="color: blue" href="/edit/<%= item._id%>"->Edit</a>
+          <a style="color: red" href="/delete/<%= item._id%>">Delete</a>
+        </td>
+      </tr>
+      <% }) %>
+    </table>
+    <% } %>
+  </body>
 </html>

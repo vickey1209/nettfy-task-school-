@@ -20,7 +20,7 @@ const partials_path = path.join(__dirname, "../templates/partials");
 //app.use(express.static('templates/views'))
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true, useNewUrlParser : true }));
+app.use(express.urlencoded({ extended: true, useNewUrlParser: true }));
 app.use(express.static(static_path));
 app.set("view engine", "ejs");
 app.set("views", template_path);
@@ -135,24 +135,75 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/display", (req, res) => {
-// const data=Register.find();
-//   console.log(data);
-Register.find({}, function(err, result) {
+  // const data=Register.find();
+  //   console.log(data);
+  Register.find({}, function (err, result) {
     if (err) {
-        console.log(err);
+      console.log(err);
     } else {
       // console.log(result);
-      res.render("display", {details: result})
+      res.render("display", { details: result });
       // console.log(details.email);
     }
   });
 });
-// app.get("/display", (req, res) => {
-//   let name = 'vaibhav'
-//   res.render('display', {
-//     userName: name
-//   })
-// });
+
+app.get("/edit/:id", async (req, res) => {
+  const _id = req.params.id;
+  
+  Register.findById(_id,  function (err, result) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.render("edit", { details: result });
+      // console.log(result);
+      // res.send(result);
+    }
+  });
+});
+
+app.post("/edit/:id", async (req, res) => {
+  try{
+  const _id = req.params.id;
+  const update = req.body;
+  const result = await Register.findByIdAndUpdate(_id, update);
+  res.render("index");
+  // Register.findByIdAndUpdate(_id, Register, function (err) {
+  //   if (err) {
+  //     console.log(err);
+  //   } else {
+  //     res.render("index");
+  //     // console.log(result);
+  //     // res.send(result);
+  //   }
+  // });
+  }catch(e){
+    console.log(e);
+  }
+});
+
+app.get("/delete/:id", async (req, res) => {
+  const _id = req.params.id;
+  console.log(_id);
+  Register.findByIdAndDelete(_id, function (err, docs) {
+    if (err){
+        console.log(err)
+    }
+    else{
+        res.redirect('/display');
+
+    }
+});
+  // Register.findByIdAndDelete(_id,  function (err, result) {
+  //   if (err) {
+  //     console.log(err);
+  //   } else {
+  //     res.render("index");
+  //     // console.log(result);
+  //     // res.send(result);
+  //   }
+  // });
+});
 
 // const securePassword = async(password) =>{
 //     const passwordHash = await bcrypt.hash(password, 10);
