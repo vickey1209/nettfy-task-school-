@@ -7,6 +7,9 @@ const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
 // const multer = require("multer");
 const auth = require("./middleware/auth");
+const localstorage = require("local-storage");
+// const LocalStorage = require('node-localstorage').LocalStorage,
+// localStorage = new LocalStorage('./register');
 
 // const upload = multer({ dest: "uploads/"})
 require("./db/conn");
@@ -88,7 +91,7 @@ app.post("/register", async (req, res) => {
       const token = await registerEmployee.generateAuthToken();
       // console.log("token part : " +token);
       //res.cookie("jwt", token, options);
-      console.log(token);
+      // console.log(token);
       res.cookie("jwt", token, {
         expires: new Date(Date.now() + 3600 * 100),
         httpOnly: true,
@@ -150,7 +153,7 @@ app.get("/display", (req, res) => {
 
 app.get("/edit/:id", async (req, res) => {
   const _id = req.params.id;
-  
+
   Register.findById(_id,  function (err, result) {
     if (err) {
       console.log(err);
@@ -163,37 +166,44 @@ app.get("/edit/:id", async (req, res) => {
 });
 
 app.post("/edit/:id", async (req, res) => {
-  try{
-  const _id = req.params.id;
-  const update = req.body;
-  const result = await Register.findByIdAndUpdate(_id, update);
-  res.render("index");
-  // Register.findByIdAndUpdate(_id, Register, function (err) {
-  //   if (err) {
-  //     console.log(err);
-  //   } else {
-  //     res.render("index");
-  //     // console.log(result);
-  //     // res.send(result);
-  //   }
-  // });
-  }catch(e){
+  try {
+    const _id = req.params.id;
+    const update = req.body;
+    const result = await Register.findByIdAndUpdate(_id, update);
+    // res.render("display");
+    Register.find({}, function (err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        // console.log(result);
+        res.render("display", { details: result });
+        // console.log(details.email);
+      }
+    });
+    // Register.findByIdAndUpdate(_id, Register, function (err) {
+    //   if (err) {
+    //     console.log(err);
+    //   } else {
+    //     res.render("index");
+    //     // console.log(result);
+    //     // res.send(result);
+    //   }
+    // });
+  } catch (e) {
     console.log(e);
   }
 });
 
 app.get("/delete/:id", async (req, res) => {
   const _id = req.params.id;
-  console.log(_id);
   Register.findByIdAndDelete(_id, function (err, docs) {
     if (err){
-        console.log(err)
+      console.log(err)
     }
     else{
-        res.redirect('/display');
-
+      res.redirect('/display');
     }
-});
+  });
   // Register.findByIdAndDelete(_id,  function (err, result) {
   //   if (err) {
   //     console.log(err);
