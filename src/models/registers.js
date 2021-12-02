@@ -65,9 +65,9 @@ employeeSchema.pre("save", async function(next){
     if(this.isModified("password")){
         // const passwordHash = await bcrypt.hash(password, 10);
         this.password = await bcrypt.hash(this.password, 10);
-        console.log(this.password)
+        // console.log(this.password)
         this.confirmpassword = await bcrypt.hash(this.confirmpassword, 10);
-        console.log(this.confirmpassword)
+        // console.log(this.confirmpassword)
     }
     next();    
 })

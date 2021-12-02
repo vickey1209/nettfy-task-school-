@@ -137,19 +137,46 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/display", (req, res) => {
-  // const data=Register.find();
-  //   console.log(data);
-  Register.find({}, function (err, result) {
-    if (err) {
-      console.log(err);
-    } else {
-      // console.log(result);
-      res.render("display", { details: result });
-      // console.log(details.email);
-    }
-  });
+// app.get("/display", (req, res) => {
+//   Register.find({}, function (err, result) {
+//     if (err) {
+//       console.log(err);
+//     } else {
+//       // console.log(result);
+//       // console.log(result);
+//       res.render("display", { details: result });
+//       // console.log(details.email);
+//     }
+//   });
+// });
+
+app.get("/display", paginatedResults(), (req, res) => {
+  // res.json(res.paginatedResults);
+  // console.log(res.paginatedResults);
+  res.render("display", { details: res.paginatedResults });
+
+  // res.paginatedResults;
 });
+function paginatedResults() {
+  return async (req, res, next) => {
+    
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
+    const skipIndex = (page - 1) * limit;
+
+    try {
+      res.paginatedResults = await Register.find()
+        .sort({ _id: 1 })
+        .limit(limit)
+        .skip(skipIndex)
+        .exec();
+      
+      next();
+    } catch (e) {
+      res.status(500).json({ message: "Error Occured" });
+    }
+  };
+}
 
 app.get("/edit/:id", async (req, res) => {
   const _id = req.params.id;
