@@ -5,6 +5,8 @@ const path = require("path");
 const hbs = require("hbs");
 const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
+const Json2csvParser = require("json2csv").Parser;
+const fs = require("fs");
 // const multer = require("multer");
 const auth = require("./middleware/auth");
 const localstorage = require("local-storage");
@@ -137,40 +139,42 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// app.get("/display", (req, res) => {
-//   Register.find({}, function (err, result) {
-//     if (err) {
-//       console.log(err);
-//     } else {
-//       // console.log(result);
-//       // console.log(result);
-//       res.render("display", { details: result });
-//       // console.log(details.email);
-//     }
-//   });
-// });
+app.get("/displayall", async(req, res) => {
+  Register.find({}, function (err, result) {
+    if (err) {
+      console.log(err);
+    } else {
+      // console.log(result);
+      // console.log(result);
+      res.render("display", { details: result });
+    }
+  });
+});
 
 app.get("/display", paginatedResults(), (req, res) => {
   // res.json(res.paginatedResults);
   // console.log(res.paginatedResults);
-  res.render("display", { details: res.paginatedResults });
+  Register.count({}, function (err, count) {
+    // console.log(count)
+    let y = 3;
+    let x = Math.ceil(count / y);
+    res.render("display", { details: res.paginatedResults, x });
+  });
 
   // res.paginatedResults;
 });
 function paginatedResults() {
   return async (req, res, next) => {
-    
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
     const skipIndex = (page - 1) * limit;
-
     try {
       res.paginatedResults = await Register.find()
         .sort({ _id: 1 })
         .limit(limit)
         .skip(skipIndex)
         .exec();
-      
+
       next();
     } catch (e) {
       res.status(500).json({ message: "Error Occured" });
@@ -181,7 +185,7 @@ function paginatedResults() {
 app.get("/edit/:id", async (req, res) => {
   const _id = req.params.id;
 
-  Register.findById(_id,  function (err, result) {
+  Register.findById(_id, function (err, result) {
     if (err) {
       console.log(err);
     } else {
@@ -224,11 +228,10 @@ app.post("/edit/:id", async (req, res) => {
 app.get("/delete/:id", async (req, res) => {
   const _id = req.params.id;
   Register.findByIdAndDelete(_id, function (err, docs) {
-    if (err){
-      console.log(err)
-    }
-    else{
-      res.redirect('/display');
+    if (err) {
+      console.log(err);
+    } else {
+      res.redirect("/display");
     }
   });
   // Register.findByIdAndDelete(_id,  function (err, result) {
@@ -240,6 +243,37 @@ app.get("/delete/:id", async (req, res) => {
   //     // res.send(result);
   //   }
   // });
+});
+
+app.get("/download", async (req, res) => {
+  try {
+    await Register.find({})
+      .lean()
+      .exec((err, data) => {
+        if (err) throw err;
+        const csvFields = ['firstname', 'password'];
+        console.log(csvFields);
+
+        const json2csvParser = new Json2csvParser({
+          csvFields,
+        });
+        const csvData = json2csvParser.parse(data);
+        // console.log(data);
+        fs.writeFile("vaibhav.csv", csvData, function (error) {
+          if (error) throw error;
+          console.log("Write to vaibhav.csv successful!");
+        });
+        Register.find({}, function (err, result) {
+            if (err) {
+              console.log(err);
+            } else {
+              res.render("display", { details: result });
+            }
+          });
+      });
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 // const securePassword = async(password) =>{

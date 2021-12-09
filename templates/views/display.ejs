@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title></title>
+    <title>Display</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
     <style type="text/css">
       table,
       td,
@@ -39,15 +41,15 @@
         border: 1px solid rgb(9, 107, 107);
         margin: 0 1rem;
       }
+      
       .pagination a:hover,
       .pagination a:active {
         background: rgb(9, 107, 107);
         color: white;
       }
     </style>
-  </head>
+  
   <body>
-    <!-- <%= details %> -->
     <!--====form section start====-->
     <hr />
     <% if(details!=null) { %>
@@ -61,10 +63,11 @@
         <th>Age</th>
         <th>File</th>
         <th>Password</th>
-        <th>Confirm Password</th>
+        <th>options</th>
       </tr>
       <% details.forEach(function(item){ %>
       <tr>
+        
         <td><%= item.firstname%></td>
         <td><%= item.lastname%></td>
         <td><%= item.email%></td>
@@ -82,9 +85,16 @@
     </table>
     <% } %>
     <section class="pagination">
-      <a href="/display?page=1&limit=3">1</a>
-      <a href="/display?page=2&limit=3">2</a>
-      <a href="/display?page=3&limit=3">3</a>
+      <% if( locals.x!= null){ %>
+      <% for(i=1;i<=x;i++){ %>
+      <a href="/display?page=<%= i  %>&limit=3"><%= i %></a>
+     
+      <% } %>
+      <% } %>
     </section>
+    <a style="color: blue" href="/download">Download</a>
   </body>
+  <script>
+    $('a').on('click', function(){$(this).css("background-color","yellow");});
+  </script>
 </html>
