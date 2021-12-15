@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Display</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <style type="text/css">
+    table,
+    td,
+    th {
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 50%;
+    }
+    .table-data {
+      position: relative;
+      left: 50px;
+      top: 50px;
+    }
+    th,
+    td {
+      padding: 15px;
+    }
+    a {
+      padding-right: 15px;
+    }
+    .pagination {
+      margin: 2rem 0;
+      text-align: center;
+    }
+    .pagination a {
+      text-decoration: none;
+      color: rgb(9, 107, 107);
+      padding: 0.5rem;
+      border: 1px solid rgb(9, 107, 107);
+      margin: 0 1rem;
+    }
+
+    .pagination a:hover,
+    .pagination a:active {
+      background: rgb(9, 107, 107);
+      color: white;
+    }
+  </style>
+
+  <body>
+    <% if(details!=null) { %>
+    <table>
+      <tr>
+        <th>First name</th>
+        <th>Email</th>
+        <th>Gender</th>
+        <th>Phone</th>
+        <th>Age</th>
+      </tr>
+      <% details.forEach(function(item){ %>
+      <tr>
+        <td><%= item.firstname%></td>
+        <td><%= item.email%></td>
+        <td><%= item.gender%></td>
+        <td><%= item.phone%></td>
+        <td><%= item.age%></td>
+      </tr>
+      <% }) %>
+    </table>
+    <% } %>
+  </body>
+</html>

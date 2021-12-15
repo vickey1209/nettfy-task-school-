@@ -5,8 +5,10 @@ const path = require("path");
 const hbs = require("hbs");
 const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
+// let pdf = require("html-pdf");
 const Json2csvParser = require("json2csv").Parser;
 const fs = require("fs");
+const expresslayout = require("express-ejs-layouts");
 // const multer = require("multer");
 const auth = require("./middleware/auth");
 const localstorage = require("local-storage");
@@ -16,6 +18,7 @@ const localstorage = require("local-storage");
 // const upload = multer({ dest: "uploads/"})
 require("./db/conn");
 const Register = require("./models/registers");
+const Login = require("./models/login");
 
 const port = process.env.PORT || 3000;
 const static_path = path.join(__dirname, "../public");
@@ -111,6 +114,14 @@ app.post("/register", async (req, res) => {
   }
 });
 
+function pop(email) {
+  return Register.findOne({ email: email })
+    .populate("posts")
+    .exec((err, posts) => {
+      console.log("Populated User " + posts);
+    });
+}
+
 app.post("/login", async (req, res) => {
   try {
     const email = req.body.email;
@@ -118,7 +129,7 @@ app.post("/login", async (req, res) => {
     // console.log(`${email} and password is ${password}`);
     const useremail = await Register.findOne({ email: email });
     const isMatch = bcrypt.compare(password, useremail.password);
-
+    const date = Date();
     const token = await useremail.generateAuthToken();
     //console.log("token part : " +token);
     //res.send(useremail.password);
@@ -131,6 +142,13 @@ app.post("/login", async (req, res) => {
     if (isMatch) {
       res.status(201).render("index");
       console.log("login successful");
+      const loginEmployee = new Login({
+        email: req.body.email,
+        password: password,
+        date: date,
+      });
+
+      const loggedin = await loginEmployee.save();
     } else {
       res.send("invalid login details");
     }
@@ -139,7 +157,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/displayall", async(req, res) => {
+app.get("/displayall", async (req, res) => {
   Register.find({}, function (err, result) {
     if (err) {
       console.log(err);
@@ -181,6 +199,95 @@ function paginatedResults() {
     }
   };
 }
+
+const pdf = require("pdf-creator-node");
+
+app.get("/generateReport", (req, res) => {
+  Register.find({}, function (err, data) {
+    const html = fs.readFileSync("./templates/views/genpdf.html", "utf-8");
+    const filename = Math.random(7) + "_doc" + ".pdf";
+
+    let array = [];
+    data.forEach((d) => {
+      const prod = {
+        firstname: d.firstname,
+        email: d.email,
+        gender: d.gender,
+        phone: d.phone,
+        age: d.age,
+      };
+      array.push(prod);
+    });
+    // console.log(array)
+
+    const users = array;
+     console.log(users);
+    const document = {
+      html: html,
+      data: {
+        users: users,
+      },
+      path: "./docs/" + filename,
+    };
+
+    let options = {
+      format: "A3",
+      orientation: "portrait",
+      border: "10mm",
+    };
+
+    pdf
+      .create(document, options)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    const filepath = "http://localhost:3000/docs/" + filename;
+    res.render("download", { details: data });
+  });
+});
+
+// Register.find({}, function (err, result) {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     res.render("display", { details: result });
+//   }
+//  });
+// });
+
+// app.get("/generateReport", (req, res) => {
+//   Register.find({}, function (err, data) {
+//     let options = {
+//       height: "11.25in",
+//       width: "8.5in",
+//       header: {
+//         height: "20mm",
+//       },
+//       footer: {
+//         height: "20mm",
+//       },
+//     };
+//     var data = fs.readFileSync("./vaibhav.csv", 'utf8');
+//     // console.log(data);
+//     pdf.create(data, options).toFile("report.pdf", function (err, data) {
+//       if (err) {
+//         res.send(err);
+//       } else {
+//         console.log("File created successfully");
+//       }
+//     });
+//   });
+//   Register.find({}, function (err, result) {
+//     if (err) {
+//       console.log(err);
+//     } else {
+//       res.render("display", { details: result });
+//     }
+//   });
+// });
 
 app.get("/edit/:id", async (req, res) => {
   const _id = req.params.id;
@@ -245,32 +352,63 @@ app.get("/delete/:id", async (req, res) => {
   // });
 });
 
+// app.get("/download", async (req, res) => {
+//   try {
+//     await Register.find({})
+//       .lean()
+//       .exec((err, data) => {
+//         if (err) throw err;
+//         const csvFields = ['firstname', 'password'];
+//         console.log(csvFields);
+
+//         const json2csvParser = new Json2csvParser({
+//           csvFields,
+//         });
+//         const csvData = json2csvParser.parse(data);
+//         // console.log(data);
+//         fs.writeFile("vaibhav.csv", csvData, function (error) {
+//           if (error) throw error;
+//           console.log("Write to vaibhav.csv successful!");
+//         });
+//         Register.find({}, function (err, result) {
+//             if (err) {
+//               console.log(err);
+//             } else {
+//               res.render("display", { details: result });
+//             }
+//           });
+//       });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// });
+
+const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 app.get("/download", async (req, res) => {
   try {
-    await Register.find({})
-      .lean()
-      .exec((err, data) => {
-        if (err) throw err;
-        const csvFields = ['firstname', 'password'];
-        console.log(csvFields);
+    await Register.find({}).exec((err, data) => {
+      if (err) throw err;
 
-        const json2csvParser = new Json2csvParser({
-          csvFields,
-        });
-        const csvData = json2csvParser.parse(data);
-        // console.log(data);
-        fs.writeFile("vaibhav.csv", csvData, function (error) {
-          if (error) throw error;
-          console.log("Write to vaibhav.csv successful!");
-        });
-        Register.find({}, function (err, result) {
-            if (err) {
-              console.log(err);
-            } else {
-              res.render("display", { details: result });
-            }
-          });
+      // console.log(data);
+      const csvWriter = createCsvWriter({
+        path: "csvWriter.csv",
+        header: [
+          { id: "firstname", title: "firstname" },
+          { id: "phone", title: "phone" },
+        ],
       });
+
+      csvWriter
+        .writeRecords(data)
+        .then(() => console.log("Write to csv successfully!"));
+    });
+    Register.find({}, function (err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        res.render("display", { details: result });
+      }
+    });
   } catch (e) {
     console.log(e);
   }

@@ -52,50 +52,29 @@
   <body>
     <!--====form section start====-->
     <hr />
-    <% if(details!=null) { %>
+    
     <table>
+      
       <tr>
         <th>First name</th>
-        <th>Last name</th>
         <th>Email</th>
         <th>Gender</th>
         <th>Phone</th>
         <th>Age</th>
-        <th>File</th>
-        <th>Password</th>
-        <th>options</th>
       </tr>
-      <% details.forEach(function(item){ %>
+      {{#each users}}
       <tr>
         
-        <td><%= item.firstname%></td>
-        <td><%= item.lastname%></td>
-        <td><%= item.email%></td>
-        <td><%= item.gender%></td>
-        <td><%= item.phone%></td>
-        <td><%= item.age%></td>
-        <td><%= item.file%></td>
-        <td><%= item.password%></td>
-        <td>
-          <a style="color: blue" href="/edit/<%= item._id%>"->Edit</a>
-          <a style="color: red" href="/delete/<%= item._id%>">Delete</a>
-        </td>
+        <td>{{this.firstname}}</td>       
+        <td>{{this.email}}</td>
+        <td>{{this.gender}}</td>
+        <td>{{this.phone}}</td>
+        <td>{{this.age}}</td>
+       
       </tr>
-      <% }) %>
+      {{/each}}
     </table>
-    <% } %>
-    <section class="pagination">
-      <% if( locals.x!= null){ %>
-      <% for(i=1;i<=x;i++){ %>
-      <a href="/display?page=<%= i  %>&limit=3"><%= i %></a>
-     
-      <% } %>
-      <% } %>
-    </section>
-    <a style="color: blue" href="/download">Download</a>
-    <a style="color: blue" href="/generateReport">Generate Report</a>
+    
   </body>
-  <script>
-    $('a').on('click', function(){$(this).css("background-color","yellow");});
-  </script>
+ 
 </html>
