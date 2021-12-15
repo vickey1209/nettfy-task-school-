@@ -31,6 +31,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true, useNewUrlParser: true }));
 app.use(express.static(static_path));
 app.set("view engine", "ejs");
+app.engine("html", require("ejs").renderFile);
 app.set("views", template_path);
 hbs.registerPartials(partials_path);
 
@@ -221,7 +222,7 @@ app.get("/generateReport", (req, res) => {
     // console.log(array)
 
     const users = array;
-     console.log(users);
+    //  console.log(users);
     const document = {
       html: html,
       data: {
@@ -246,6 +247,66 @@ app.get("/generateReport", (req, res) => {
       });
     const filepath = "http://localhost:3000/docs/" + filename;
     res.render("download", { details: data });
+  });
+});
+
+app.get("/invoice", (req, res) => {
+  Register.find({}, function (err, data) {
+    res.render("download", { details: data });
+  });
+  // res.render("invoice");
+});
+
+app.get("/generate/:id", (req, res) => {
+  const _id = req.params.id;
+
+  Register.findById(_id, function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      const html = fs.readFileSync("./templates/views/invoice.html", "utf-8");
+      const filename = Math.random(10) + "_doc" + ".pdf";
+
+      let array = [];
+      const prod = {
+        firstname: data.firstname,
+        lastname: data.lastname,
+        email: data.email,
+        gender: data.gender,
+        phone: data.phone,
+        age: data.age,
+      };
+      array.push(prod);
+      console.log(array);
+
+      const users = array;
+      console.log(users);
+      const document = {
+        html: html,
+        data: {
+          users: users,
+        },
+        path: "./docs/" + filename,
+      };
+
+      let options = {
+        format: "A3",
+        orientation: "portrait",
+        border: "10mm",
+      };
+
+      pdf
+        .create(document, options)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      const filepath = "http://localhost:3000/docs/" + filename;
+      // res.render("invoice", { details: data });
+      res.render("index");
+    }
   });
 });
 

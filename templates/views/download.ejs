@@ -66,6 +66,9 @@
         <td><%= item.gender%></td>
         <td><%= item.phone%></td>
         <td><%= item.age%></td>
+        <td>
+          <a style="color: blue" href="/generate/<%= item._id%>"->Generate Invoice</a>
+        </td>
       </tr>
       <% }) %>
     </table>

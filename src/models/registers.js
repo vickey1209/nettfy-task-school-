@@ -3,6 +3,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const employeeSchema = new mongoose.Schema({
+    srno :{
+        type: Number,
+         default: 0 
+    },
     firstname :{
         type:String,
         required:true
