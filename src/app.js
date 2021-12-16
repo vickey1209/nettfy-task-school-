@@ -493,7 +493,13 @@ app.get("/download", async (req, res) => {
 app.post("/search", async (req, res) => {
   try {
     const search = req.body.search;
+    // if( Register.findOne({ firstname: search }) != null){
     const username = await Register.findOne({ firstname: search });
+    if(username === null){
+      Register.find({}, function (err, result) {
+        res.render("display", { details: result });
+      });
+    }else{
       Register.find({ firstname: search }, function (err, result) {
         if (err) {
           console.log(err);
@@ -501,14 +507,21 @@ app.post("/search", async (req, res) => {
           Register.find({}, function (err, result) {
             res.render("display", { details: result });
           });
-        } else {
-          console.log(username.firstname);
+        }else if (username.firstname === null) {
+          Register.find({}, function (err, result) {
+            res.render("display", { details: result });
+          });
+        }
+        else {
+          // console.log(username.firstname);
           res.render("display", { details: result });
         }
       });
-    
-  } catch (e) {
-    res.status(400).send(e);
+    }
+
+}
+catch (e) {
+    res.status(400);
   }
 });
 
