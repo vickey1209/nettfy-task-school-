@@ -127,7 +127,7 @@ app.post("/login", async (req, res) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
-    // console.log(`${email} and password is ${password}`);
+    console.log(`${email} and password is ${password}`);
     const useremail = await Register.findOne({ email: email });
     const isMatch = bcrypt.compare(password, useremail.password);
     const date = Date();
@@ -149,7 +149,7 @@ app.post("/login", async (req, res) => {
         date: date,
       });
 
-      const loggedin = await loginEmployee.save();
+      await loginEmployee.save();
     } else {
       res.send("invalid login details");
     }
@@ -167,7 +167,7 @@ app.get("/displayall", async (req, res) => {
       // console.log(result);
       res.render("display", { details: result });
     }
-  });
+  }).sort({ firstname: 1 });
 });
 
 app.get("/display", paginatedResults(), (req, res) => {
@@ -247,7 +247,7 @@ app.get("/generateReport", (req, res) => {
       });
     const filepath = "http://localhost:3000/docs/" + filename;
     res.render("download", { details: data });
-  });
+  }).sort({ age: 1 });
 });
 
 app.get("/invoice", (req, res) => {
@@ -314,7 +314,7 @@ app.get("/generate/:id", async (req, res) => {
         "C:/Users/Vaibhav Personal/Desktop/CRUD/mernbackend/docs/" + filename;
       res.download(filepath, filename);
       console.log(filepath);
-      
+
       // fs.unlink(filepath, (err) => {
       //   if (err) {
       //     console.error(err);
@@ -487,6 +487,28 @@ app.get("/download", async (req, res) => {
     });
   } catch (e) {
     console.log(e);
+  }
+});
+
+app.post("/search", async (req, res) => {
+  try {
+    const search = req.body.search;
+    const username = await Register.findOne({ firstname: search });
+      Register.find({ firstname: search }, function (err, result) {
+        if (err) {
+          console.log(err);
+        } else if (search == "") {
+          Register.find({}, function (err, result) {
+            res.render("display", { details: result });
+          });
+        } else {
+          console.log(username.firstname);
+          res.render("display", { details: result });
+        }
+      });
+    
+  } catch (e) {
+    res.status(400).send(e);
   }
 });
 
