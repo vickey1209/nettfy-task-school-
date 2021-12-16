@@ -257,10 +257,10 @@ app.get("/invoice", (req, res) => {
   // res.render("invoice");
 });
 
-app.get("/generate/:id", (req, res) => {
+app.get("/generate/:id", async (req, res) => {
   const _id = req.params.id;
 
-  Register.findById(_id, function (err, data) {
+  Register.findById(_id, async function (err, data) {
     if (err) {
       console.log(err);
     } else {
@@ -290,12 +290,16 @@ app.get("/generate/:id", (req, res) => {
       };
 
       let options = {
-        format: "A3",
+        formate: "A3",
         orientation: "portrait",
-        border: "10mm",
+        border: "2mm",
+        header: {
+          height: "15mm",
+          contents:
+            '<h4 style=" color: red;font-size:20;font-weight:800;text-align:center;">CUSTOMER INVOICE</h4>',
+        },
       };
-
-      pdf
+      await pdf
         .create(document, options)
         .then((res) => {
           console.log(res);
@@ -303,9 +307,20 @@ app.get("/generate/:id", (req, res) => {
         .catch((error) => {
           console.log(error);
         });
-      const filepath = "http://localhost:3000/docs/" + filename;
-      // res.render("invoice", { details: data });
-      res.render("index");
+      // const filepath = "http://localhost:3000/docs/" + filename;
+      // console.log(filename)
+      // console.log(filepath)
+      const filepath =
+        "C:/Users/Vaibhav Personal/Desktop/CRUD/mernbackend/docs/" + filename;
+      res.download(filepath, filename);
+      console.log(filepath);
+      
+      // fs.unlink(filepath, (err) => {
+      //   if (err) {
+      //     console.error(err);
+      //     return;
+      //   }
+      // });
     }
   });
 });
